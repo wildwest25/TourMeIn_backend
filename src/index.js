@@ -40,3 +40,13 @@ app.post("/auth", async (req, res) => {
 app.post("/test", [auth.verify], async (req, res) => {
   res.json({ status: "OK" });
 });
+
+app.get("/users/:email", async (req, res) => {
+  let db = await connect();
+  let email = req.params.email;
+
+  let result = await db.collection("users").findOne({ email: email });
+
+  res.json(result);
+  //console.log(result);
+});
