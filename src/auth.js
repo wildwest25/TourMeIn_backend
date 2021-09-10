@@ -20,6 +20,11 @@ export default {
       country: userdata.country,
       isguide: userdata.isguide,
       city: userdata.city,
+      phone: userdata.phone,
+      languages: userdata.languages,
+      ivisited: userdata.ivisited,
+      wouldvisit: userdata.wouldvisit,
+      aboutme: userdata.aboutme,
     };
     try {
       let result = await db.collection("users").insertOne(doc);

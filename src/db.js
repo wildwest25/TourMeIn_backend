@@ -20,7 +20,7 @@ export default () => {
       if (err) {
         reject("Doslo je do greske " + err);
       } else {
-        console.log("Uspjesno spajanje na bazu");
+        //console.log("Uspjesno spajanje na bazu");
         db = client.db("TourMeIn");
         resolve(db);
       }
