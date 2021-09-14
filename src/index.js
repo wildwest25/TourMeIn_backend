@@ -63,6 +63,7 @@ app.post("/auth", async (req, res) => {
 app.get("/users/:email", async (req, res) => {
   let db = await connect();
   let email = req.params.email;
+  //console.log(email);
 
   let result = await db.collection("users").findOne({ email: email });
 
@@ -70,6 +71,57 @@ app.get("/users/:email", async (req, res) => {
   //console.log(result);
 });
 
+app.get("/guide/:guide", async (req, res) => {
+  let db = await connect();
+  let guide = req.params.guide;
+
+  //console.log(guide);
+
+  let result = await db.collection("users").find({ isguide: guide });
+
+  let cursor = await result.toArray();
+
+  res.json(cursor);
+});
+
 app.post("/test", [auth.verify], async (req, res) => {
   res.json({ status: "OK" });
+});
+
+app.get("/search/:guides", async (req, res) => {
+  let db = await connect();
+  let query = req.query;
+  let guide = req.params.guide;
+
+  let selekcija = {};
+
+  if (query.name) {
+    selekcija.name = new RegExp(query.name);
+  }
+
+  if (query.name2) {
+    let pretraga = query.name2;
+    let terms = pretraga.split(" ");
+
+    selekcija = {
+      $and: [],
+    };
+
+    terms.forEach((term) => {
+      //console.log("unutar petelje", term);
+      let or = {
+        $or: [{ city: new RegExp(term) }],
+      };
+
+      selekcija.$and.push(or);
+    });
+  }
+
+  let cursor = await db
+    .collection("users")
+    .find({ selekcija }, { isguide: guide });
+  let results = await cursor.toArray();
+  //console.log(results);
+
+  res.json(results);
 });

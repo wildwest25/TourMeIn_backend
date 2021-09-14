@@ -45,6 +45,7 @@ export default {
       fblink: userdata.fblink,
       twlink: userdata.twlink,
       instalink: userdata.instalink,
+      Picture: userdata.Picture,
     };
     try {
       let result = await db.collection("users").insertOne(doc);
