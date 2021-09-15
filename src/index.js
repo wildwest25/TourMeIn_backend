@@ -9,7 +9,7 @@ const app = express();
 
 app.use(cors());
 
-const port = 3000;
+const port = process.env.PORT || 3000;
 app.use(express.json());
 
 app.listen(port, () => {
@@ -91,7 +91,9 @@ app.post("/test", [auth.verify], async (req, res) => {
 app.get("/search/:guides", async (req, res) => {
   let db = await connect();
   let query = req.query;
-  let guide = req.params.guide;
+  let guide = req.params.guides;
+
+  //console.log(guide);
 
   let selekcija = {};
 
@@ -119,7 +121,7 @@ app.get("/search/:guides", async (req, res) => {
 
   let cursor = await db
     .collection("users")
-    .find({ selekcija }, { isguide: guide });
+    .find({ $and: [selekcija, { isguide: guide }] });
   let results = await cursor.toArray();
   //console.log(results);
 
