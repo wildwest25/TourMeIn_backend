@@ -66,6 +66,7 @@ export default {
     } catch (e) {
       if (e.name == "MongoError" && e.code == 11000) {
         throw new Error("Korisnik već postoji");
+        //komentar
       }
     }
   },
