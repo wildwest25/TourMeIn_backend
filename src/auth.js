@@ -47,7 +47,18 @@ export default {
       instalink: userdata.instalink,
       Picture: userdata.Picture,
     };
+    let tourdoc = {
+      user: userdata.email,
+      guide: userdata.guide,
+      name: userdata.name,
+      guidename: userdata.guidename,
+      accepted: "waiting",
+      guideimage: userdata.guideimage,
+      userimage: userdata.userimage,
+    };
     try {
+      let tourResult = await db.collection("tour").insertOne(tourdoc);
+
       let result = await db.collection("users").insertOne(doc);
       if (result && result.insertedId) {
         return result.insertedId;

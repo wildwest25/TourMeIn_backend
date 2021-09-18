@@ -9,7 +9,7 @@ const app = express();
 
 app.use(cors());
 
-const port = process.env.PORT || 3000;
+const port = 3000;
 app.use(express.json());
 
 app.listen(port, () => {
@@ -84,10 +84,110 @@ app.get("/guide/:guide", async (req, res) => {
   res.json(cursor);
 });
 
-app.post("/test", [auth.verify], async (req, res) => {
-  res.json({ status: "OK" });
+app.get("/guides/:guides", async (req, res) => {
+  let db = await connect();
+  let guide = req.params.guides;
+
+  //console.log(guide);
+
+  let result = await db.collection("users").findOne({ isguide: guide });
+
+  res.json(result);
 });
 
+app.patch("/tour/:email", async (req, res) => {
+  let email = req.params.email;
+  let data = req.body;
+
+  let db = await connect();
+
+  let result = await db.collection("tour").updateOne(
+    { user: email },
+    {
+      $set: data,
+    }
+  );
+  //console.log(data, email)
+  if (result && result.modifiedCount == 1) {
+    let doc = await db.collection("tour").findOne({ user: email });
+    res.json(doc);
+  } else {
+    res.json({
+      status: "fail",
+    });
+  }
+});
+
+app.patch("/tours/:id", async (req, res) => {
+  let id = req.params.id;
+  let data = req.body;
+
+  let db = await connect();
+
+  let result = await db.collection("tour").updateOne(
+    { id: id },
+    {
+      $set: data,
+    }
+  );
+  //console.log(data, email)
+  if (result && result.modifiedCount == 1) {
+    let doc = await db.collection("tour").findOne({ id: id });
+    res.json(doc);
+  } else {
+    res.json({
+      status: "fail",
+    });
+  }
+});
+
+app.get("/tour/:email", async (req, res) => {
+  let db = await connect();
+  let email = req.params.email;
+  //console.log(user);
+
+  let result = await db.collection("tour").findOne({ user: email });
+
+  res.json(result);
+});
+
+//vraca sve koji su rated
+app.get("/rated/:rate", async (req, res) => {
+  let db = await connect();
+  let rated = req.params.rate;
+
+  //console.log(rated);
+
+  let result = await db.collection("tour").find({ accepted: rated });
+
+  let cursor = await result.toArray();
+
+  res.json(cursor);
+});
+
+//vraca sve gdje je guide = currentuser
+app.get("/tours/:guide", async (req, res) => {
+  let db = await connect();
+  let guide = req.params.guide;
+  //console.log(user);
+
+  let result = await db.collection("tour").findOne({ guide: guide });
+
+  res.json(result);
+});
+
+//vraca sve gdje je user = currentuser
+app.get("/tourss/:user", async (req, res) => {
+  let db = await connect();
+  let user = req.params.user;
+  //console.log(user);
+
+  let result = await db.collection("tour").findOne({ user: user });
+
+  res.json(result);
+});
+
+//SEARCH
 app.get("/search/:guides", async (req, res) => {
   let db = await connect();
   let query = req.query;
