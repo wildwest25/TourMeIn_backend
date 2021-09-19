@@ -9,13 +9,14 @@ const app = express();
 
 app.use(cors());
 
-const port = process.env.PORT || 3000;
+const port = 3100 || process.env.PORT;
 app.use(express.json());
 
 app.listen(port, () => {
   console.log("Server on port ", port);
 });
 
+//Registracija
 app.post("/users", async (req, res) => {
   let user = req.body;
   let id;
@@ -27,6 +28,7 @@ app.post("/users", async (req, res) => {
   return res.json({ id: id });
 });
 
+//Update/dodaje input polja u userProfile/GuidePage
 app.patch("/users/:email", async (req, res) => {
   let email = req.params.email;
   let data = req.body;
@@ -50,6 +52,7 @@ app.patch("/users/:email", async (req, res) => {
   }
 });
 
+//Login
 app.post("/auth", async (req, res) => {
   let user = req.body;
   try {
@@ -60,6 +63,7 @@ app.post("/auth", async (req, res) => {
   }
 });
 
+//Dohvaca sve iz kolekcije users po specificnom mailu
 app.get("/users/:email", async (req, res) => {
   let db = await connect();
   let email = req.params.email;
@@ -71,6 +75,7 @@ app.get("/users/:email", async (req, res) => {
   //console.log(result);
 });
 
+//dohvaca cijelu kolekciju users ovisno o tome dali je guide ili ne
 app.get("/guide/:guide", async (req, res) => {
   let db = await connect();
   let guide = req.params.guide;
@@ -84,6 +89,7 @@ app.get("/guide/:guide", async (req, res) => {
   res.json(cursor);
 });
 
+//dohvaca samo ono sta zelis iz kolekcije users ovisno o teme da li je guide ili ne
 app.get("/guides/:guides", async (req, res) => {
   let db = await connect();
   let guide = req.params.guides;
@@ -95,6 +101,7 @@ app.get("/guides/:guides", async (req, res) => {
   res.json(result);
 });
 
+//updatea kolekciju tour
 app.patch("/tour/:email", async (req, res) => {
   let email = req.params.email;
   let data = req.body;
@@ -118,6 +125,26 @@ app.patch("/tour/:email", async (req, res) => {
   }
 });
 
+//prebacuje zavrsene toure u kolekciju finishedTours zbog lakseg snalazenja i dohvata
+app.post("/finishtour/:email", async (req, res) => {
+  let email = req.params.email;
+  let data = req.body;
+
+  let db = await connect();
+
+  let result = await db.collection("finishedTours").insertOne(data);
+  //console.log(nadimak);
+  if (result && result.insertedCount == 1) {
+    let doc = await db.collection("finishedTours").findOne({ user: email });
+    res.json(doc);
+  } else {
+    res.json({
+      status: "fail",
+    });
+  }
+});
+
+//update kolekciju tour po id-u od user-a
 app.patch("/tours/:id", async (req, res) => {
   let id = req.params.id;
   let data = req.body;
@@ -141,6 +168,7 @@ app.patch("/tours/:id", async (req, res) => {
   }
 });
 
+//dohvaca podatke koje zelis iz kolekcije tour ako je user = trenutni korisnik
 app.get("/tour/:email", async (req, res) => {
   let db = await connect();
   let email = req.params.email;
@@ -151,14 +179,30 @@ app.get("/tour/:email", async (req, res) => {
   res.json(result);
 });
 
-//vraca sve koji su rated
-app.get("/rated/:rate", async (req, res) => {
+//vraca cijelu kolekciju
+app.get("/rated/:email", async (req, res) => {
   let db = await connect();
-  let rated = req.params.rate;
+  let email = req.params.email;
+
+  console.log(email);
+
+  let result = await db
+    .collection("finishedTours")
+    .find({ $or: [{ user: email }, { guide: email }] });
+
+  let cursor = await result.toArray();
+
+  res.json(cursor);
+});
+
+//vraca sve koji su rated
+app.get("/finishedTour/:guide", async (req, res) => {
+  let db = await connect();
+  let guide = req.params.guide;
 
   //console.log(rated);
 
-  let result = await db.collection("tour").find({ accepted: rated });
+  let result = await db.collection("finishedTours").find({ guide: guide });
 
   let cursor = await result.toArray();
 
@@ -185,6 +229,22 @@ app.get("/tourss/:user", async (req, res) => {
   let result = await db.collection("tour").findOne({ user: user });
 
   res.json(result);
+});
+
+app.post("/deleteFnished/:id", async (req, res) => {
+  let id = req.body.id;
+
+  let db = await connect();
+  //console.log(email);
+  let result = await db.collection("finishedTours").deleteOne({ id: id });
+
+  if (result && result.deletedCount == 1) {
+    res.json({ status: "Izbrisano" });
+  } else {
+    res.json({
+      status: "fail",
+    });
+  }
 });
 
 //SEARCH
