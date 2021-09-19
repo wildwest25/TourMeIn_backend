@@ -9,7 +9,7 @@ const app = express();
 
 app.use(cors());
 
-const port = 3100 || process.env.PORT;
+const port = process.env.PORT || 3100;
 app.use(express.json());
 
 app.listen(port, () => {
