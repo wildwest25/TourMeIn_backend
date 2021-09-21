@@ -76,7 +76,7 @@ app.get("/users/:email", async (req, res) => {
 });
 
 //dohvaca cijelu kolekciju users ovisno o tome dali je guide ili ne
-app.get("/guide/:guide", async (req, res) => {
+app.get("/guide/:guide", [auth.verify], async (req, res) => {
   let db = await connect();
   let guide = req.params.guide;
 
@@ -89,8 +89,8 @@ app.get("/guide/:guide", async (req, res) => {
   res.json(cursor);
 });
 
-//dohvaca samo ono sta zelis iz kolekcije users ovisno o teme da li je guide ili ne
-app.get("/guides/:guides", async (req, res) => {
+//dohvaca samo ono sta treba iz kolekcije users ovisno o tome da li je guide ili ne
+app.get("/guides/:guides", [auth.verify], async (req, res) => {
   let db = await connect();
   let guide = req.params.guides;
 
@@ -102,7 +102,7 @@ app.get("/guides/:guides", async (req, res) => {
 });
 
 //updatea kolekciju tour
-app.patch("/tour/:email", async (req, res) => {
+app.patch("/tour/:email", [auth.verify], async (req, res) => {
   let email = req.params.email;
   let data = req.body;
 
@@ -126,7 +126,7 @@ app.patch("/tour/:email", async (req, res) => {
 });
 
 //prebacuje zavrsene toure u kolekciju finishedTours zbog lakseg snalazenja i dohvata
-app.post("/finishtour/:email", async (req, res) => {
+app.post("/finishtour/:email", [auth.verify], async (req, res) => {
   let email = req.params.email;
   let data = req.body;
 
@@ -145,7 +145,7 @@ app.post("/finishtour/:email", async (req, res) => {
 });
 
 //update kolekciju tour po id-u od user-a
-app.patch("/tours/:id", async (req, res) => {
+app.patch("/tours/:id", [auth.verify], async (req, res) => {
   let id = req.params.id;
   let data = req.body;
 
@@ -169,7 +169,7 @@ app.patch("/tours/:id", async (req, res) => {
 });
 
 //dohvaca podatke koje zelis iz kolekcije tour ako je user = trenutni korisnik
-app.get("/tour/:email", async (req, res) => {
+app.get("/tour/:email", [auth.verify], async (req, res) => {
   let db = await connect();
   let email = req.params.email;
   //console.log(user);
@@ -180,7 +180,7 @@ app.get("/tour/:email", async (req, res) => {
 });
 
 //vraca cijelu kolekciju
-app.get("/rated/:email", async (req, res) => {
+app.get("/rated/:email", [auth.verify], async (req, res) => {
   let db = await connect();
   let email = req.params.email;
 
@@ -196,7 +196,7 @@ app.get("/rated/:email", async (req, res) => {
 });
 
 //vraca sve koji su rated
-app.get("/finishedTour/:guide", async (req, res) => {
+app.get("/finishedTour/:guide", [auth.verify], async (req, res) => {
   let db = await connect();
   let guide = req.params.guide;
 
@@ -210,7 +210,7 @@ app.get("/finishedTour/:guide", async (req, res) => {
 });
 
 //vraca sve gdje je guide = currentuser
-app.get("/tours/:guide", async (req, res) => {
+app.get("/tours/:guide", [auth.verify], async (req, res) => {
   let db = await connect();
   let guide = req.params.guide;
   //console.log(user);
@@ -221,7 +221,7 @@ app.get("/tours/:guide", async (req, res) => {
 });
 
 //vraca sve gdje je user = currentuser
-app.get("/tourss/:user", async (req, res) => {
+app.get("/tourss/:user", [auth.verify], async (req, res) => {
   let db = await connect();
   let user = req.params.user;
   //console.log(user);
@@ -231,7 +231,7 @@ app.get("/tourss/:user", async (req, res) => {
   res.json(result);
 });
 
-app.post("/deleteFnished/:id", async (req, res) => {
+app.post("/deleteFnished/:id", [auth.verify], async (req, res) => {
   let id = req.body.id;
 
   let db = await connect();
@@ -248,7 +248,7 @@ app.post("/deleteFnished/:id", async (req, res) => {
 });
 
 //SEARCH
-app.get("/search/:guides", async (req, res) => {
+app.get("/search/:guides", [auth.verify], async (req, res) => {
   let db = await connect();
   let query = req.query;
   let guide = req.params.guides;
